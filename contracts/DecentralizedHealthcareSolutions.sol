@@ -97,6 +97,33 @@ contract DecentralizedHealthcareSolutions {
     event DoctorRegistered(address indexed doctorAddress,string name,string specialization);
     event DoctorApproved(address indexed doctorAddress);
     event DoctorBanned(address indexed doctorAddress);
+
+    event RecordAdded(address indexed patientAddress, uint256 recordId, string diagnosis);
+
+    event EmergencyAccessGranted(address indexed patientAddress,address indexed hospital);
+
+    event InsurancePolicyRegistered(address indexed patientAddress,uint256 policyId,uint256 coverageAmount);
+
+    event ClaimProcessed(address indexed patientAddress,uint256 amountClaimed);
+
+    event ConsultationCreated(uint256 indexed consultationId, address indexed patient, address indexed doctor);
+
+    event ConsultationPaid(uint256 indexed consultationId, uint256 amount);
+
+    event SupplyChainItemCreated(uint256 indexed itemId, string itemName, address manufacturer);
+
+    event SupplyChainItemTransferred(uint256 indexed itemId, address newOwner);
+
+    event DisputeRaised(uint256 indexed disputeId, address indexed complainant, address indexed respondent);
+
+    event DisputeResolved(uint256 indexed disputeId);
+    
+
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "only admin can perform this action");
+        _;
+    }
+
     
 
 }
