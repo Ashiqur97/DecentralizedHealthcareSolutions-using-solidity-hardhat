@@ -117,13 +117,27 @@ contract DecentralizedHealthcareSolutions {
     event DisputeRaised(uint256 indexed disputeId, address indexed complainant, address indexed respondent);
 
     event DisputeResolved(uint256 indexed disputeId);
-    
 
     modifier onlyAdmin() {
         require(msg.sender == admin, "only admin can perform this action");
         _;
     }
 
-    
+    modifier onlyRegisteredPatients() {
+         require(patients[msg.sender].isRegistered && !patients[msg.sender].isBanned, "Only registered patients can perform this action.");
+         _;
+    }
+
+     modifier onlyRegisteredDoctors() {
+        require(doctors[msg.sender].isRegistered && doctors[msg.sender].isApproved && !doctors[msg.sender].isBanned, "Only approved doctors can perform this action.");
+        _;
+    }
+
+    modifier onlyActiveInsurance(address _patient) {
+        require(insurancePolicies[_patient].isActive, "Insurance policy is not active.");
+        _;
+    }
+
+
 
 }
