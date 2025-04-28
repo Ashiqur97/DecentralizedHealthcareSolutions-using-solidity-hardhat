@@ -138,6 +138,30 @@ contract DecentralizedHealthcareSolutions {
         _;
     }
 
+    constructor() {
+        admin = msg.sender;
+        emit AdminSet(admin);
+    }
+
+    function setAdmin(address _newAdmin) external onlyAdmin {
+        admin = _newAdmin;
+        emit AdminSet(_newAdmin);
+    }
+
+    function approveDoctor(address _doctorAddress) external onlyAdmin {
+        require(doctors[_doctorAddress].isRegistered, "Doctor is not registered");
+        doctors[_doctorAddress].isApproved = true;
+        emit DoctorApproved(_doctorAddress);
+   }
+
+   function banUser(address _userAddress) external onlyAdmin {
+    if(patients[_userAddress].isRegistered) {
+        patients[_userAddress].isBanned = true;
+    } else if (doctors[_userAddress].isRegistered) {
+        doctors[_userAddress].isBanned = true;
+        emit DoctorBanned(_userAddress);
+        }
+   }
 
 
 }
