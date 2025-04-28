@@ -163,5 +163,25 @@ contract DecentralizedHealthcareSolutions {
         }
    }
 
+      function grantEmergencyAccess(address _patientAddress, address _hospital) external onlyAdmin {
+        require(patients[_patientAddress].isRegistered, "Patient is not registered.");
+        accessGranted[_patientAddress][_hospital] = true;
+        emit EmergencyAccessGranted(_patientAddress, _hospital);
+    }
+
+      function registerPatient(string memory _name, uint256 _age, string memory _gender) external {
+        require(!patients[msg.sender].isRegistered, "Patient already registered.");
+
+        patients[msg.sender] = Patient({
+            patientAddress: msg.sender,
+            name: _name,
+            age: _age,
+            gender: _gender,
+            isRegistered: true,
+            isBanned: false
+        });
+
+        emit PatientRegistered(msg.sender, _name);
+    }
 
 }
