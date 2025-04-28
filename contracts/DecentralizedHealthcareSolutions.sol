@@ -184,4 +184,19 @@ contract DecentralizedHealthcareSolutions {
         emit PatientRegistered(msg.sender, _name);
     }
 
+     function registerDoctor(string memory _name, string memory _specialization) external {
+        require(!doctors[msg.sender].isRegistered, "Doctor already registered.");
+
+        doctors[msg.sender] = Doctor({
+            doctorAddress: msg.sender,
+            name: _name,
+            specialization: _specialization,
+            isRegistered: true,
+            isApproved: false,
+            isBanned: false
+        });
+
+        emit DoctorRegistered(msg.sender, _name, _specialization);
+    }
+
 }
