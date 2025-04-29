@@ -180,6 +180,12 @@ contract DecentralizedHealthcareSolutions {
         emit RecordAdded(medicalRecordCount, msg.sender, _recordHash);
     }
 
+       function grantConsent(address _entity) external onlyRegisteredPatients {
+        // Grant consent to the specified entity
+        consents[msg.sender][_entity] = true;
 
+        // Emit the ConsentGranted event
+        emit ConsentGranted(msg.sender, _entity);
+    }
 
 }
