@@ -151,7 +151,7 @@ contract DecentralizedHealthcareSolutions {
     }
 
     function registerPatient(string memory _name, uint256 _age, string memory _gender) external {
-        require(!patients[msg.sender].isRegistered,"PAtient already registered.");
+        require(!patients[msg.sender].isRegistered,"Patient already registered.");
 
         patients[msg.sender] = Patient({
             patientAddress:msg.sender,
@@ -166,6 +166,20 @@ contract DecentralizedHealthcareSolutions {
         emit PatientRegistered(msg.sender, _name);
     }
 
-    
+    function addMedicalRecord(string memory _recordHash) external onlyRegisteredPatients {
+        medicalRecordCount++;
+
+        medicalRecords[medicalRecordCount] = MedicalRecord({
+            recordId: medicalRecordCount,
+            recordHash:_recordHash,
+            timestamp:block.timestamp
+        });
+
+        patients[msg.sender].medicalRecordHashes.push(_recordHash);
+
+        emit RecordAdded(medicalRecordCount, msg.sender, _recordHash);
+    }
+
+
 
 }
