@@ -181,18 +181,18 @@ contract DecentralizedHealthcareSolutions {
     }
 
        function grantConsent(address _entity) external onlyRegisteredPatients {
-        // Grant consent to the specified entity
+        
         consents[msg.sender][_entity] = true;
 
-        // Emit the ConsentGranted event
+        
         emit ConsentGranted(msg.sender, _entity);
     }
 
      function registerDoctor(string memory _name, string memory _specialization) external {
-        // Ensure the doctor is not already registered
+        
         require(!doctors[msg.sender].isRegistered, "Doctor already registered.");
 
-        // Initialize the doctor struct
+       
         doctors[msg.sender] = Doctor({
             doctorAddress: msg.sender,
             name: _name,
@@ -203,8 +203,14 @@ contract DecentralizedHealthcareSolutions {
             referralBonus: 0
         });
 
-        // Emit the DoctorRegistered event
+        
         emit DoctorRegistered(msg.sender, _name, _specialization);
+    }
+
+    function approveDoctor(address _doctorAddress) external onlyAdmin {
+        require(doctors[_doctorAddress].isRegistered, "Doctor is not registered");
+
+        doctors[_doctorAddress].isApproved = true;   
     }
 
 }
