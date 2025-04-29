@@ -207,10 +207,27 @@ contract DecentralizedHealthcareSolutions {
         emit DoctorRegistered(msg.sender, _name, _specialization);
     }
 
-    function approveDoctor(address _doctorAddress) external onlyAdmin {
+     function approveDoctor(address _doctorAddress) external onlyAdmin {
         require(doctors[_doctorAddress].isRegistered, "Doctor is not registered");
 
         doctors[_doctorAddress].isApproved = true;   
+    }
+
+      function referPatient(address _patientAddress, address _specialist) external onlyRegisteredDoctors {
+      
+        require(patients[_patientAddress].isRegistered, "Patient is not registered.");
+
+        
+        require(doctors[_specialist].isRegistered && doctors[_specialist].isApproved, "Specialist is not approved.");
+
+       
+        consents[_patientAddress][_specialist] = true;
+
+       
+        doctors[msg.sender].referralBonus += 10;
+
+       
+        emit ConsentGranted(_patientAddress, _specialist);
     }
 
 }
