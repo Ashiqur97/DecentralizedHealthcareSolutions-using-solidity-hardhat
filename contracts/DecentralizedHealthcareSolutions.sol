@@ -188,4 +188,23 @@ contract DecentralizedHealthcareSolutions {
         emit ConsentGranted(msg.sender, _entity);
     }
 
+     function registerDoctor(string memory _name, string memory _specialization) external {
+        // Ensure the doctor is not already registered
+        require(!doctors[msg.sender].isRegistered, "Doctor already registered.");
+
+        // Initialize the doctor struct
+        doctors[msg.sender] = Doctor({
+            doctorAddress: msg.sender,
+            name: _name,
+            specialization: _specialization,
+            isRegistered: true,
+            isApproved: false,
+            isBanned: false,
+            referralBonus: 0
+        });
+
+        // Emit the DoctorRegistered event
+        emit DoctorRegistered(msg.sender, _name, _specialization);
+    }
+
 }
