@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 contract DecentralizedHealthcareSolutions {
-  
+    // Structs
     struct Patient {
         address patientAddress;
         string name;
@@ -10,7 +10,7 @@ contract DecentralizedHealthcareSolutions {
         string gender;
         bool isRegistered;
         bool isBanned;
-        string[] medicalRecordHashes; 
+        string[] medicalRecordHashes; // Off-chain encrypted hashes
     }
 
     struct Doctor {
@@ -18,14 +18,14 @@ contract DecentralizedHealthcareSolutions {
         string name;
         string specialization;
         bool isRegistered;
-        bool isApproved; 
+        bool isApproved; // Admin approval required
         bool isBanned;
-        uint256 referralBonus; 
+        uint256 referralBonus; // Referral bonuses in tokens
     }
 
     struct MedicalRecord {
         uint256 recordId;
-        string recordHash; 
+        string recordHash; // Encrypted hash stored on-chain
         uint256 timestamp;
     }
 
@@ -52,7 +52,7 @@ contract DecentralizedHealthcareSolutions {
         string itemName;
         address manufacturer;
         address currentOwner;
-        uint256 expirationDate; 
+        uint256 expirationDate; // Timestamp for expiration
         bool isDelivered;
     }
 
@@ -75,18 +75,18 @@ contract DecentralizedHealthcareSolutions {
 
     struct EmergencyProtocol {
         address patientAddress;
-        address responder; 
+        address responder; // Hospital or emergency responder
         uint256 startTime;
-        uint256 endTime; 
+        uint256 endTime; // Time-limited access
         bool isActive;
     }
 
-    
+    // Token for Rewards
     mapping(address => uint256) public rewardsBalance;
 
-    
+    // Mappings
     mapping(address => Patient) public patients;
-    mapping(address => mapping(address => bool)) public consents; 
+    mapping(address => mapping(address => bool)) public consents; // Separate mapping for consents
     mapping(address => Doctor) public doctors;
     mapping(uint256 => MedicalRecord) public medicalRecords;
     mapping(address => InsurancePolicy) public insurancePolicies;
@@ -102,10 +102,10 @@ contract DecentralizedHealthcareSolutions {
     uint256 public proposalCount;
     uint256 public disputeCount;
 
-   
+    // Admin Role
     address public admin;
 
- 
+    // Events
     event AdminSet(address indexed admin);
     event PatientRegistered(address indexed patientAddress, string name);
     event DoctorRegistered(address indexed doctorAddress, string name, string specialization);
@@ -127,107 +127,5 @@ contract DecentralizedHealthcareSolutions {
     event DisputeResolved(uint256 indexed disputeId);
 
     event TokensRewarded(address indexed recipient, uint256 amount);
-
     
-    constructor() {
-        admin = msg.sender;
-        emit AdminSet(admin);
-    }
-
-    
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Only admin can perform this action.");
-        _;
-    }
-
-    modifier onlyRegisteredPatients() {
-        require(patients[msg.sender].isRegistered && !patients[msg.sender].isBanned, "Only registered patients can perform this action.");
-        _;
-    }
-
-    modifier onlyRegisteredDoctors() {
-        require(doctors[msg.sender].isRegistered && doctors[msg.sender].isApproved && !doctors[msg.sender].isBanned, "Only approved doctors can perform this action.");
-        _;
-    }
-
-    function registerPatient(string memory _name, uint256 _age, string memory _gender) external {
-        require(!patients[msg.sender].isRegistered,"Patient already registered.");
-
-        patients[msg.sender] = Patient({
-            patientAddress:msg.sender,
-            name:_name,
-            age:_age,
-            gender:_gender,
-            isRegistered:true,
-            isBanned: false,
-            medicalRecordHashes: new string[](0)
-        });
-
-        emit PatientRegistered(msg.sender, _name);
-    }
-
-    function addMedicalRecord(string memory _recordHash) external onlyRegisteredPatients {
-        medicalRecordCount++;
-
-        medicalRecords[medicalRecordCount] = MedicalRecord({
-            recordId: medicalRecordCount,
-            recordHash:_recordHash,
-            timestamp:block.timestamp
-        });
-
-        patients[msg.sender].medicalRecordHashes.push(_recordHash);
-
-        emit RecordAdded(medicalRecordCount, msg.sender, _recordHash);
-    }
-
-       function grantConsent(address _entity) external onlyRegisteredPatients {
-        
-        consents[msg.sender][_entity] = true;
-
-        
-        emit ConsentGranted(msg.sender, _entity);
-    }
-
-     function registerDoctor(string memory _name, string memory _specialization) external {
-        
-        require(!doctors[msg.sender].isRegistered, "Doctor already registered.");
-
-       
-        doctors[msg.sender] = Doctor({
-            doctorAddress: msg.sender,
-            name: _name,
-            specialization: _specialization,
-            isRegistered: true,
-            isApproved: false,
-            isBanned: false,
-            referralBonus: 0
-        });
-
-        
-        emit DoctorRegistered(msg.sender, _name, _specialization);
-    }
-
-     function approveDoctor(address _doctorAddress) external onlyAdmin {
-        require(doctors[_doctorAddress].isRegistered, "Doctor is not registered");
-
-        doctors[_doctorAddress].isApproved = true;   
-    }
-
-      function referPatient(address _patientAddress, address _specialist) external onlyRegisteredDoctors {
-      
-        require(patients[_patientAddress].isRegistered, "Patient is not registered.");
-
-        
-        require(doctors[_specialist].isRegistered && doctors[_specialist].isApproved, "Specialist is not approved.");
-
-       
-        consents[_patientAddress][_specialist] = true;
-
-       
-        doctors[msg.sender].referralBonus += 10;
-
-       
-        emit ConsentGranted(_patientAddress, _specialist);
-    }
-
 }
