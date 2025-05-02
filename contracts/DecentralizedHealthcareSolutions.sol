@@ -171,5 +171,26 @@ contract DecentralizedHealthcareSolutions {
 
         emit PatientRegistered(msg.sender, _name);
     }
+
+       function addMedicalRecord(string memory _recordHash) external onlyRegisteredPatients {
+      
+        require(bytes(_recordHash).length > 0, "Record hash cannot be empty.");
+
+       
+        medicalRecordCount++;
+
+       
+        medicalRecords[medicalRecordCount] = MedicalRecord({
+            recordId: medicalRecordCount,
+            recordHash: _recordHash,
+            timestamp: block.timestamp
+        });
+
+        
+        patients[msg.sender].medicalRecordHashes.push(_recordHash);
+
+      
+        emit RecordAdded(medicalRecordCount, msg.sender, _recordHash);
+    }
     
 }
