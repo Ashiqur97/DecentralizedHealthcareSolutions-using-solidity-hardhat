@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.0;
 
 contract DecentralizedHealthcareSolutions {
     // Structs
@@ -127,5 +127,49 @@ contract DecentralizedHealthcareSolutions {
     event DisputeResolved(uint256 indexed disputeId);
 
     event TokensRewarded(address indexed recipient, uint256 amount);
+
+    bool internal locked;
+
+    modifier noReentrancy() {
+        require(!locked,"Reentrant call detected");
+        locked = true;
+        _;
+        locked = false;
+    }
+
+      modifier onlyAdmin() {
+        require(msg.sender == admin, "Only admin can perform this action.");
+        _;
+    }
+
+      modifier onlyRegisteredPatients() {
+        require(patients[msg.sender].isRegistered && !patients[msg.sender].isBanned, "Only registered patients can perform this action.");
+        _;
+    }
+
+    modifier onlyRegisteredDoctors() {
+        require(doctors[msg.sender].isRegistered && doctors[msg.sender].isApproved && !doctors[msg.sender].isBanned, "Only approved doctors can perform this action.");
+        _;
+    }
+
+    function registerPatient(string memory _name, uint256 _age, string memory _gender) external {
+        require(bytes(_name).length > 0, "Name can not be empty");
+        require(_age > 0 , "Age must be greater than zero");
+        require(bytes(_gender).length > 0, "Gender cannot be empty");
+
+        require(!patients[msg.sender].isRegistered, "Patient already registered");
+
+        patients[msg.sender] = Patient({
+            patientAddress: msg.sender,
+            name:_name,
+            age:_age,
+            gender:_gender,
+            isRegistered:true,
+            isBanned:false,
+            medicalRecordHashes: new string[](0)
+        });
+
+        emit PatientRegistered(msg.sender, _name);
+    }
     
 }
