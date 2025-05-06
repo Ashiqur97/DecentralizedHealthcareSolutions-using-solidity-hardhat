@@ -232,5 +232,26 @@ contract DecentralizedHealthcareSolutions {
         // Approve the doctor
         doctors[_doctorAddress].isApproved = true;
     }
+
+        function referPatient(address _patientAddress, address _specialist) external onlyRegisteredDoctors {
+        // Input validation
+        require(_patientAddress != address(0), "Invalid patient address.");
+        require(_specialist != address(0), "Invalid specialist address.");
+
+        // Ensure the patient is registered
+        require(patients[_patientAddress].isRegistered, "Patient is not registered.");
+
+        // Ensure the specialist is registered and approved
+        require(doctors[_specialist].isRegistered && doctors[_specialist].isApproved, "Specialist is not approved.");
+
+        // Grant consent to the specialist
+        consents[_patientAddress][_specialist] = true;
+
+        // Reward the referring doctor
+        doctors[msg.sender].referralBonus += 10;
+
+        // Emit the ConsentGranted event
+        emit ConsentGranted(_patientAddress, _specialist);
+    }
     
 }
