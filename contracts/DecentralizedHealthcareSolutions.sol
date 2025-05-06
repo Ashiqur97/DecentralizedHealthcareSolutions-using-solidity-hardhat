@@ -253,5 +253,26 @@ contract DecentralizedHealthcareSolutions {
         // Emit the ConsentGranted event
         emit ConsentGranted(_patientAddress, _specialist);
     }
+
+       function triggerEmergencyProtocol(address _patientAddress, uint256 _duration) external onlyAdmin noReentrancy {
+        // Input validation
+        require(_patientAddress != address(0), "Invalid patient address.");
+        require(_duration > 0, "Duration must be greater than zero.");
+
+        // Ensure the patient is registered
+        require(patients[_patientAddress].isRegistered, "Patient is not registered.");
+
+        // Activate the emergency protocol
+        emergencyProtocols[_patientAddress] = EmergencyProtocol({
+            patientAddress: _patientAddress,
+            responder: msg.sender,
+            startTime: block.timestamp,
+            endTime: block.timestamp + _duration,
+            isActive: true
+        });
+
+        // Emit the EmergencyAccessGranted event
+        emit EmergencyAccessGranted(_patientAddress, msg.sender);
+    }
     
 }
