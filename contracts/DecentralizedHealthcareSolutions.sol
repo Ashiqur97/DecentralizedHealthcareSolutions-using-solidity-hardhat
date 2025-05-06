@@ -173,24 +173,64 @@ contract DecentralizedHealthcareSolutions {
     }
 
        function addMedicalRecord(string memory _recordHash) external onlyRegisteredPatients {
-      
+        // Input validation
         require(bytes(_recordHash).length > 0, "Record hash cannot be empty.");
 
-       
+        // Increment the medical record count
         medicalRecordCount++;
 
-       
+        // Add the medical record to the mapping
         medicalRecords[medicalRecordCount] = MedicalRecord({
             recordId: medicalRecordCount,
             recordHash: _recordHash,
             timestamp: block.timestamp
         });
 
-        
+        // Add the record hash to the patient's record list
         patients[msg.sender].medicalRecordHashes.push(_recordHash);
 
-      
+        // Emit the RecordAdded event
         emit RecordAdded(medicalRecordCount, msg.sender, _recordHash);
+    }
+
+    function grantConsent(address _entity) external onlyRegisteredPatients {
+        require(_entity != address(0), "Invalid entity address.");
+        consents[msg.sender][_entity] = true;
+        emit ConsentGranted(msg.sender, _entity);
+    }
+
+        function registerDoctor(string memory _name, string memory _specialization) external {
+        // Input validation
+        require(bytes(_name).length > 0, "Name cannot be empty.");
+        require(bytes(_specialization).length > 0, "Specialization cannot be empty.");
+
+        // Ensure the doctor is not already registered
+        require(!doctors[msg.sender].isRegistered, "Doctor already registered.");
+
+        // Initialize the doctor struct
+        doctors[msg.sender] = Doctor({
+            doctorAddress: msg.sender,
+            name: _name,
+            specialization: _specialization,
+            isRegistered: true,
+            isApproved: false,
+            isBanned: false,
+            referralBonus: 0
+        });
+
+        // Emit the DoctorRegistered event
+        emit DoctorRegistered(msg.sender, _name, _specialization);
+    }
+
+       function approveDoctor(address _doctorAddress) external onlyAdmin {
+        // Input validation
+        require(_doctorAddress != address(0), "Invalid doctor address.");
+
+        // Ensure the doctor is registered
+        require(doctors[_doctorAddress].isRegistered, "Doctor is not registered.");
+
+        // Approve the doctor
+        doctors[_doctorAddress].isApproved = true;
     }
     
 }
