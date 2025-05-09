@@ -333,4 +333,30 @@ contract DecentralizedHealthcareSolutions {
           emit SupplyChainItemCreated(supplyChainItemCount , _itemName, msg.sender);
 
     }
+
+
+    function transferSupplyChainItem(uint256 _itemId, address _newOwner) external {
+        // Input validation
+        require(_newOwner != address(0), "Invalid new owner address.");
+
+        // Get the supply chain item
+        SupplyChainItem storage item = supplyChainItems[_itemId];
+
+        // Ensure the item exists
+        require(item.itemId > 0, "Invalid item ID.");
+
+        // Ensure the sender is the current owner
+        require(item.currentOwner == msg.sender, "You do not own this item.");
+
+        // Transfer ownership
+        item.currentOwner = _newOwner;
+
+        // Mark as delivered if the new owner is a patient
+        if (_newOwner == patients[item.currentOwner].patientAddress) {
+            item.isDelivered = true;
+        }
+
+        // Emit the SupplyChainItemTransferred event
+        emit SupplyChainItemTransferred(_itemId, _newOwner);
+    }
 }
