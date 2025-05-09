@@ -382,4 +382,24 @@ contract DecentralizedHealthcareSolutions {
         emit ProposalCreated(proposalCount, msg.sender, _description, _requestedFunding);
     }
 
+       function fundProposal(uint256 _proposalId) external payable noReentrancy {
+        // Input validation
+        require(_proposalId > 0, "Invalid proposal ID.");
+        require(msg.value > 0, "You must send some funds.");
+
+        // Get the proposal
+        Proposal storage proposal = proposals[_proposalId];
+
+        // Ensure the proposal exists
+        require(proposal.proposalId > 0, "Invalid proposal ID.");
+
+        // Add the funds to the proposal
+        proposal.fundsReceived += msg.value;
+
+        // Approve the proposal if funding goal is met
+        if (proposal.fundsReceived >= proposal.requestedFunding) {
+            proposal.isApproved = true;
+        }
+    }
+
 }
