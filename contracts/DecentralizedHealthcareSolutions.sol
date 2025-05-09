@@ -254,7 +254,7 @@ contract DecentralizedHealthcareSolutions {
         emit ConsentGranted(_patientAddress, _specialist);
     }
 
-       function triggerEmergencyProtocol(address _patientAddress, uint256 _duration) external onlyAdmin noReentrancy {
+      function triggerEmergencyProtocol(address _patientAddress, uint256 _duration) external onlyAdmin noReentrancy {
         // Input validation
         require(_patientAddress != address(0), "Invalid patient address.");
         require(_duration > 0, "Duration must be greater than zero.");
@@ -274,5 +274,63 @@ contract DecentralizedHealthcareSolutions {
         // Emit the EmergencyAccessGranted event
         emit EmergencyAccessGranted(_patientAddress, msg.sender);
     }
-    
+
+ function registerInsurancePolicy(uint256 _coverageAmount) external onlyRegisteredPatients noReentrancy {
+        // Input validation
+        require(_coverageAmount > 0, "Coverage amount must be greater than zero.");
+
+        // Ensure the patient does not already have an active policy
+        require(!insurancePolicies[msg.sender].isActive, "Insurance policy already registered.");
+
+        // Register the insurance policy
+        insurancePolicies[msg.sender] = InsurancePolicy({
+            policyId: uint256(keccak256(abi.encodePacked(msg.sender, block.timestamp))),
+            insurer: msg.sender,
+            coverageAmount: _coverageAmount,
+            claimableAmount: 0,
+            isActive: true
+        });
+
+        // Emit the InsurancePolicyRegistered event
+        emit InsurancePolicyRegistered(msg.sender, insurancePolicies[msg.sender].policyId, _coverageAmount);
+    }
+
+    function processInsuranceClaim(uint256 _amount) external onlyRegisteredPatients noReentrancy {
+        // Input validation
+        require(_amount > 0, "Claim amount must be greater than zero.");
+
+        // Get the insurance policy
+        InsurancePolicy storage policy = insurancePolicies[msg.sender];
+
+        // Ensure the policy is active
+        require(policy.isActive, "Insurance policy is not active.");
+
+        // Ensure the claim amount does not exceed the coverage
+        require(_amount <= policy.coverageAmount, "Claim amount exceeds coverage.");
+
+        // Process the claim
+        policy.claimableAmount += _amount;
+
+        // Emit the ClaimProcessed event
+        emit ClaimProcessed(msg.sender, _amount);
+    }
+
+    function createSupplyChainItem(string memory _itemName, uint256 _expirationDate) external {
+          require(bytes(_itemName).length > 0, "Item name cannot be empty.");
+        require(_expirationDate > block.timestamp, "Invalid expiration date");
+
+        supplyChainItemCount++;
+
+        supplyChainItems[supplyChainItemCount] = SupplyChainItem({
+            itemId: supplyChainItemCount,
+            itemName: _itemName,
+            manufacturer:msg.sender,
+            currentOwner:msg.sender,
+            expirationDate:_expirationDate,
+            isDelivered:false
+        });
+        
+          emit SupplyChainItemCreated(supplyChainItemCount , _itemName, msg.sender);
+
+    }
 }
