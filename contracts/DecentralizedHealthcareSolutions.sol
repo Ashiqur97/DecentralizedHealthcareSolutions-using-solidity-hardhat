@@ -359,4 +359,27 @@ contract DecentralizedHealthcareSolutions {
         // Emit the SupplyChainItemTransferred event
         emit SupplyChainItemTransferred(_itemId, _newOwner);
     }
+
+      function createProposal(string memory _description, uint256 _requestedFunding) external {
+        // Input validation
+        require(bytes(_description).length > 0, "Description cannot be empty.");
+        require(_requestedFunding > 0, "Requested funding must be greater than zero.");
+
+        // Increment the proposal count
+        proposalCount++;
+
+        // Create the proposal
+        proposals[proposalCount] = Proposal({
+            proposalId: proposalCount,
+            proposer: msg.sender,
+            description: _description,
+            requestedFunding: _requestedFunding,
+            fundsReceived: 0,
+            isApproved: false
+        });
+
+        // Emit the ProposalCreated event
+        emit ProposalCreated(proposalCount, msg.sender, _description, _requestedFunding);
+    }
+
 }
